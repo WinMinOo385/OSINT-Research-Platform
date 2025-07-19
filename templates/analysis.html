@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block title %}{{ investigation.name }} - Analysis{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="h3 fw-bold text-light mb-1">{{ investigation.name }}</h1>
+                    <p class="text-muted mb-0">{{ investigation.description or 'Investigation analysis and data visualization' }}</p>
+                    <div class="mt-2">
+                        <span class="badge bg-{% if investigation.status == 'active' %}success{% else %}secondary{% endif %} me-2">
+                            {{ investigation.status.title() }}
+                        </span>
+                        <span class="text-muted small">
+                            Created: {{ investigation.created_at.strftime('%Y-%m-%d') }} |
+                            Updated: {{ investigation.updated_at.strftime('%Y-%m-%d %H:%M') }}
+                        </span>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <a href="{{ url_for('analyze_investigation', investigation_id=investigation.id) }}" class="btn btn-accent">
+                        <i data-feather="cpu" class="me-2"></i>
+                        Run Analysis
+                    </a>
+                    <a href="{{ url_for('search') }}" class="btn btn-primary">
+                        <i data-feather="plus" class="me-2"></i>
+                        Collect Data
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-number">{{ data_entries|length }}</div>
+                    <div class="stat-label">Data Points</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-number">{{ data_by_source.keys()|length }}</div>
+                    <div class="stat-label">Source Types</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-number">{{ analysis_results|length }}</div>
+                    <div class="stat-label">Analyses</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-number">{{ ((data_entries|map(attribute='confidence_score')|sum / data_entries|length) * 100)|round|int if data_entries else 0 }}%</div>
+                    <div class="stat-label">Avg Confidence</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Data Visualization -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="visualizationTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                                <i data-feather="pie-chart" class="me-2"></i>Overview
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" type="button" role="tab">
+                                <i data-feather="clock" class="me-2"></i>Timeline
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="network-tab" data-bs-toggle="tab" data-bs-target="#network" type="button" role="tab">
+                                <i data-feather="share-2" class="me-2"></i>Network
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Overview Tab -->
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3">Source Distribution</h6>
+                                    <canvas id="sourceChart" width="400" height="200"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3">Confidence Levels</h6>
+                                    <canvas id="confidenceChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Timeline Tab -->
+                        <div class="tab-pane fade" id="timeline" role="tabpanel">
+                            <h6 class="fw-bold mb-3">Data Collection Timeline</h6>
+                            <div id="timelineChart"></div>
+                        </div>
+                        
+                        <!-- Network Tab -->
+                        <div class="tab-pane fade" id="network" role="tabpanel">
+                            <h6 class="fw-bold mb-3">Relationship Network</h6>
+                            <div id="networkChart" class="text-center py-5">
+                                <i data-feather="share-2" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                                <p class="text-muted">Network visualization will be generated after analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Results -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i data-feather="cpu" class="me-2"></i>
+                        Analysis Results
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if analysis_results %}
+                        {% for result in analysis_results %}
+                        <div class="analysis-item mb-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="fw-medium">{{ result.title }}</div>
+                                <span class="badge bg-{% if result.confidence > 0.7 %}success{% elif result.confidence > 0.4 %}warning{% else %}danger{% endif %}">
+                                    {{ (result.confidence * 100)|round|int }}%
+                                </span>
+                            </div>
+                            <div class="text-muted small mb-2">{{ result.description }}</div>
+                            <div class="text-muted small">{{ result.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                            {% if result.get_results_dict() %}
+                            <button class="btn btn-sm btn-outline-secondary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#result{{ result.id }}">
+                                View Details
+                            </button>
+                            <div class="collapse mt-2" id="result{{ result.id }}">
+                                <div class="card card-body small">
+                                    <pre class="mb-0">{{ result.get_results_dict()|tojson(indent=2) }}</pre>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <hr>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="cpu" class="text-muted mb-3" style="width: 32px; height: 32px;"></i>
+                            <p class="text-muted small">No analysis results yet</p>
+                            <a href="{{ url_for('analyze_investigation', investigation_id=investigation.id) }}" class="btn btn-sm btn-primary">
+                                Run Analysis
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Tables -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i data-feather="database" class="me-2"></i>
+                        Collected Data
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if data_entries %}
+                        <!-- Source Type Filter -->
+                        <div class="mb-3">
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="sourceFilter" id="all" value="all" checked>
+                                <label class="btn btn-outline-secondary btn-sm" for="all">All Sources</label>
+                                
+                                {% for source_type in data_by_source.keys() %}
+                                <input type="radio" class="btn-check" name="sourceFilter" id="{{ source_type }}" value="{{ source_type }}">
+                                <label class="btn btn-outline-secondary btn-sm" for="{{ source_type }}">
+                                    {{ source_type.title() }} ({{ data_by_source[source_type]|length }})
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover data-table" id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>Source</th>
+                                        <th>Target</th>
+                                        <th>Confidence</th>
+                                        <th>Collected</th>
+                                        <th>Data</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in data_entries %}
+                                    <tr data-source="{{ entry.source_type }}">
+                                        <td>
+                                            <span class="badge bg-secondary">{{ entry.source_type.title() }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-medium">{{ entry.target }}</div>
+                                            {% if entry.source_url %}
+                                            <div class="text-muted small">{{ entry.source_url[:50] }}...</div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress me-2" style="width: 60px; height: 6px;">
+                                                    <div class="progress-bar bg-{% if entry.confidence_score > 0.7 %}success{% elif entry.confidence_score > 0.4 %}warning{% else %}danger{% endif %}" 
+                                                         style="width: {{ (entry.confidence_score * 100)|round|int }}%"></div>
+                                                </div>
+                                                <small>{{ (entry.confidence_score * 100)|round|int }}%</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted small">{{ entry.collected_at.strftime('%m/%d %H:%M') }}</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#data{{ entry.id }}">
+                                                <i data-feather="eye" class="me-1"></i>
+                                                View Data
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#data{{ entry.id }}">
+                                                    <i data-feather="eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="collapse" id="data{{ entry.id }}">
+                                        <td colspan="6">
+                                            <div class="card">
+                                                <div class="card-body small">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h6>Data</h6>
+                                                            <pre class="bg-dark p-3 rounded">{{ entry.get_data_dict()|tojson(indent=2) }}</pre>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h6>Metadata</h6>
+                                                            <pre class="bg-dark p-3 rounded">{{ entry.get_metadata_dict()|tojson(indent=2) }}</pre>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="database" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                            <h6 class="text-muted">No data collected yet</h6>
+                            <p class="text-muted small">Start collecting OSINT data for this investigation</p>
+                            <a href="{{ url_for('search') }}" class="btn btn-primary">
+                                <i data-feather="plus" class="me-2"></i>
+                                Collect Data
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/visualization.js') }}"></script>
+<script>
+    // Initialize visualizations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load visualization data
+        fetch(`/api/visualization_data/{{ investigation.id }}`)
+            .then(response => response.json())
+            .then(data => {
+                initializeCharts(data);
+            })
+            .catch(error => {
+                console.error('Error loading visualization data:', error);
+            });
+
+        // Source filter functionality
+        const sourceFilters = document.querySelectorAll('input[name="sourceFilter"]');
+        const tableRows = document.querySelectorAll('#dataTable tbody tr[data-source]');
+
+        sourceFilters.forEach(filter => {
+            filter.addEventListener('change', function() {
+                const selectedSource = this.value;
+                
+                tableRows.forEach(row => {
+                    if (selectedSource === 'all' || row.dataset.source === selectedSource) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

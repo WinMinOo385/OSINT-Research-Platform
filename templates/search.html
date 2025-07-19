@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Data Collection - OSINT Research Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold text-light mb-1">OSINT Data Collection</h1>
+            <p class="text-muted mb-0">Gather intelligence from multiple public sources</p>
+        </div>
+    </div>
+
+    <!-- Collection Form -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i data-feather="search" class="me-2"></i>
+                        Configure Data Collection
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('collect_data') }}">
+                        <!-- Investigation Selection -->
+                        <div class="mb-4">
+                            <label for="investigation_id" class="form-label">Target Investigation *</label>
+                            <select class="form-select" id="investigation_id" name="investigation_id" required>
+                                <option value="">Select an investigation...</option>
+                                {% for investigation in investigations %}
+                                <option value="{{ investigation.id }}">{{ investigation.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Choose which investigation this data collection belongs to</div>
+                        </div>
+
+                        <!-- Target Input -->
+                        <div class="mb-4">
+                            <label for="target" class="form-label">Search Target *</label>
+                            <input type="text" class="form-control" id="target" name="target" required 
+                                   placeholder="example.com, user@domain.com, 192.168.1.1, username">
+                            <div class="form-text">Enter domain, email, IP address, username, or other identifier</div>
+                        </div>
+
+                        <!-- Source Type Selection -->
+                        <div class="mb-4">
+                            <label class="form-label">Data Sources *</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card source-card">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="website" id="source_website" name="source_types">
+                                                <label class="form-check-label" for="source_website">
+                                                    <div class="d-flex align-items-start">
+                                                        <i data-feather="globe" class="me-2 mt-1"></i>
+                                                        <div>
+                                                            <div class="fw-medium">Website Analysis</div>
+                                                            <div class="text-muted small">Extract content, metadata, and links from websites</div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="card source-card">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="dns" id="source_dns" name="source_types">
+                                                <label class="form-check-label" for="source_dns">
+                                                    <div class="d-flex align-items-start">
+                                                        <i data-feather="server" class="me-2 mt-1"></i>
+                                                        <div>
+                                                            <div class="fw-medium">DNS Lookup</div>
+                                                            <div class="text-muted small">Resolve domain names and IP addresses</div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="card source-card">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="whois" id="source_whois" name="source_types">
+                                                <label class="form-check-label" for="source_whois">
+                                                    <div class="d-flex align-items-start">
+                                                        <i data-feather="info" class="me-2 mt-1"></i>
+                                                        <div>
+                                                            <div class="fw-medium">WHOIS Information</div>
+                                                            <div class="text-muted small">Domain registration and ownership data</div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="card source-card">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="social_media" id="source_social" name="source_types">
+                                                <label class="form-check-label" for="source_social">
+                                                    <div class="d-flex align-items-start">
+                                                        <i data-feather="users" class="me-2 mt-1"></i>
+                                                        <div>
+                                                            <div class="fw-medium">Social Media</div>
+                                                            <div class="text-muted small">Search public social media profiles</div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="card source-card">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="email" id="source_email" name="source_types">
+                                                <label class="form-check-label" for="source_email">
+                                                    <div class="d-flex align-items-start">
+                                                        <i data-feather="mail" class="me-2 mt-1"></i>
+                                                        <div>
+                                                            <div class="fw-medium">Email Analysis</div>
+                                                            <div class="text-muted small">Validate and analyze email addresses</div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="card source-card">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="ip" id="source_ip" name="source_types">
+                                                <label class="form-check-label" for="source_ip">
+                                                    <div class="d-flex align-items-start">
+                                                        <i data-feather="wifi" class="me-2 mt-1"></i>
+                                                        <div>
+                                                            <div class="fw-medium">IP Address</div>
+                                                            <div class="text-muted small">Analyze IP addresses and geolocation</div>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Collection Options -->
+                        <div class="mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">Collection Options</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="deep_analysis" checked>
+                                                <label class="form-check-label" for="deep_analysis">
+                                                    Deep Analysis
+                                                </label>
+                                            </div>
+                                            <div class="form-text">Perform thorough data extraction and analysis</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="auto_correlate" checked>
+                                                <label class="form-check-label" for="auto_correlate">
+                                                    Auto-correlate Data
+                                                </label>
+                                            </div>
+                                            <div class="form-text">Automatically find relationships between data points</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-secondary me-md-2" onclick="window.history.back()">
+                                <i data-feather="arrow-left" class="me-2"></i>
+                                Back
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-feather="play" class="me-2"></i>
+                                Start Collection
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips Card -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="card-title mb-0">
+                        <i data-feather="lightbulb" class="me-2"></i>
+                        Collection Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Domains:</strong> Use fully qualified domain names (e.g., example.com)</li>
+                        <li><strong>IP Addresses:</strong> Both IPv4 and IPv6 addresses are supported</li>
+                        <li><strong>Email Addresses:</strong> Use complete email addresses for best results</li>
+                        <li><strong>Usernames:</strong> Social media usernames without @ symbols</li>
+                        <li><strong>Multiple Sources:</strong> Select multiple sources for comprehensive intelligence</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize source cards interaction
+    document.addEventListener('DOMContentLoaded', function() {
+        const sourceCards = document.querySelectorAll('.source-card');
+        
+        sourceCards.forEach(card => {
+            const checkbox = card.querySelector('input[type="checkbox"]');
+            
+            card.addEventListener('click', function(e) {
+                if (e.target.type !== 'checkbox') {
+                    checkbox.checked = !checkbox.checked;
+                    updateCardState(card, checkbox.checked);
+                }
+            });
+            
+            checkbox.addEventListener('change', function() {
+                updateCardState(card, this.checked);
+            });
+        });
+        
+        function updateCardState(card, checked) {
+            if (checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
+    });
+</script>
+{% endblock %}

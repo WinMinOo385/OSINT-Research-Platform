@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - OSINT Research Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 fw-bold text-light mb-1">Intelligence Dashboard</h1>
+                    <p class="text-muted mb-0">Overview of OSINT research activities and findings</p>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-accent" data-bs-toggle="modal" data-bs-target="#newInvestigationModal">
+                        <i data-feather="plus" class="me-2"></i>
+                        New Investigation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">{{ stats.total_investigations }}</div>
+                            <div class="stat-label">Total Investigations</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i data-feather="folder"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">{{ stats.active_investigations }}</div>
+                            <div class="stat-label">Active Cases</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i data-feather="activity"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">{{ stats.total_data_entries }}</div>
+                            <div class="stat-label">Data Points</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i data-feather="database"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">{{ stats.data_sources }}</div>
+                            <div class="stat-label">Data Sources</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i data-feather="globe"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="row">
+        <!-- Recent Investigations -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i data-feather="folder" class="me-2"></i>
+                        Recent Investigations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if investigations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Data Points</th>
+                                        <th>Last Updated</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for investigation in investigations %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-medium">{{ investigation.name }}</div>
+                                            {% if investigation.description %}
+                                            <div class="text-muted small">{{ investigation.description[:50] }}{% if investigation.description|length > 50 %}...{% endif %}</div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{% if investigation.status == 'active' %}success{% else %}secondary{% endif %}">
+                                                {{ investigation.status.title() }}
+                                            </span>
+                                        </td>
+                                        <td>{{ investigation.data_entries|length }}</td>
+                                        <td>
+                                            <span class="text-muted small">{{ investigation.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('view_investigation', id=investigation.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i data-feather="eye" class="me-1"></i>
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="folder-plus" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                            <h6 class="text-muted">No investigations yet</h6>
+                            <p class="text-muted small">Create your first investigation to start collecting OSINT data</p>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newInvestigationModal">
+                                Create Investigation
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i data-feather="activity" class="me-2"></i>
+                        Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_data %}
+                        <div class="activity-feed">
+                            {% for entry in recent_data[:10] %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i data-feather="{% if entry.source_type == 'website' %}globe{% elif entry.source_type == 'dns' %}server{% elif entry.source_type == 'email' %}mail{% else %}database{% endif %}"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="fw-medium small">{{ entry.source_type.title() }} data collected</div>
+                                    <div class="text-muted small">Target: {{ entry.target }}</div>
+                                    <div class="text-muted small">{{ entry.collected_at.strftime('%m/%d %H:%M') }}</div>
+                                </div>
+                                <div class="activity-meta">
+                                    <span class="badge bg-{% if entry.confidence_score > 0.7 %}success{% elif entry.confidence_score > 0.4 %}warning{% else %}danger{% endif %} small">
+                                        {{ (entry.confidence_score * 100)|round|int }}%
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="activity" class="text-muted mb-3" style="width: 32px; height: 32px;"></i>
+                            <p class="text-muted small">No recent activity</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Investigation Modal -->
+<div class="modal fade" id="newInvestigationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Investigation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('create_investigation') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Investigation Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Investigation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,504 @@
+/* OSINT Research Platform - Custom Styles */
+
+/* Color Variables */
+:root {
+    --color-primary: #1B263B;
+    --color-secondary: #415A77;
+    --color-background: #0D1B2A;
+    --color-text: #E0E1DD;
+    --color-accent: #778DA9;
+    --color-alert: #D62828;
+    --color-success: #28a745;
+    --color-warning: #ffc107;
+    --color-info: #17a2b8;
+    --color-light: #f8f9fa;
+    --color-dark: #212529;
+    
+    /* Additional theme colors */
+    --color-card-bg: #1a2332;
+    --color-border: #2d3748;
+    --color-muted: #718096;
+    --color-hover: #2a3441;
+}
+
+/* Global Styles */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.fw-bold {
+    font-weight: 700 !important;
+}
+
+code, pre {
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+}
+
+/* Bootstrap Dark Theme Overrides */
+.bg-primary {
+    background-color: var(--color-primary) !important;
+}
+
+.bg-secondary {
+    background-color: var(--color-secondary) !important;
+}
+
+.btn-accent {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+}
+
+.btn-accent:hover {
+    background-color: #6a7b95;
+    border-color: #6a7b95;
+    color: white;
+}
+
+.text-accent {
+    color: var(--color-accent) !important;
+}
+
+/* Layout */
+.main-content {
+    min-height: calc(100vh - 140px);
+    background-color: var(--color-background);
+}
+
+/* Navigation */
+.navbar-brand {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: var(--color-text);
+    transition: color 0.3s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+    color: var(--color-accent);
+}
+
+/* Cards */
+.card {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: rgba(27, 38, 59, 0.5);
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 600;
+}
+
+.card-title {
+    color: var(--color-text);
+    margin-bottom: 0;
+}
+
+/* Statistics Cards */
+.stat-card {
+    background: linear-gradient(135deg, var(--color-card-bg) 0%, rgba(27, 38, 59, 0.8) 100%);
+    border: 1px solid var(--color-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.25rem;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: var(--color-accent);
+    opacity: 0.7;
+}
+
+/* Tables */
+.data-table {
+    background-color: transparent;
+}
+
+.data-table th {
+    background-color: var(--color-primary);
+    color: var(--color-text);
+    border-color: var(--color-border);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    border-color: var(--color-border);
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--color-hover);
+}
+
+/* Forms */
+.form-control,
+.form-select {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--color-card-bg);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 0.2rem rgba(119, 141, 169, 0.25);
+    color: var(--color-text);
+}
+
+.form-label {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.form-text {
+    color: var(--color-muted);
+}
+
+/* Source Cards */
+.source-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.source-card:hover {
+    border-color: var(--color-accent);
+    background-color: rgba(119, 141, 169, 0.1);
+}
+
+.source-card.selected {
+    border-color: var(--color-accent);
+    background-color: rgba(119, 141, 169, 0.2);
+}
+
+/* Format Cards */
+.format-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.format-card:hover {
+    border-color: var(--color-accent);
+    background-color: rgba(119, 141, 169, 0.1);
+}
+
+.format-card.selected {
+    border-color: var(--color-accent);
+    background-color: rgba(119, 141, 169, 0.2);
+}
+
+/* Activity Feed */
+.activity-feed {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    background-color: var(--color-accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.activity-icon svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+}
+
+.activity-content {
+    flex-grow: 1;
+}
+
+.activity-meta {
+    margin-left: 0.5rem;
+}
+
+/* Analysis Items */
+.analysis-item {
+    padding: 1rem;
+    background-color: rgba(27, 38, 59, 0.3);
+    border-radius: 0.375rem;
+    border: 1px solid var(--color-border);
+}
+
+/* Progress Bars */
+.progress {
+    background-color: var(--color-border);
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Badges */
+.badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+    background-color: #223651;
+    border-color: #223651;
+}
+
+.btn-outline-primary {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-outline-secondary {
+    color: var(--color-secondary);
+    border-color: var(--color-secondary);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+}
+
+/* Modals */
+.modal-content {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--color-border);
+}
+
+/* Alerts */
+.alert {
+    border-radius: 0.5rem;
+    border: none;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-left: 4px solid var(--color-success);
+    color: #d4edda;
+}
+
+.alert-danger {
+    background-color: rgba(214, 40, 40, 0.1);
+    border-left: 4px solid var(--color-alert);
+    color: #f8d7da;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-left: 4px solid var(--color-warning);
+    color: #fff3cd;
+}
+
+.alert-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    border-left: 4px solid var(--color-info);
+    color: #d1ecf1;
+}
+
+/* Dropdown */
+.dropdown-menu {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+}
+
+.dropdown-item {
+    color: var(--color-text);
+}
+
+.dropdown-item:hover {
+    background-color: var(--color-hover);
+    color: var(--color-text);
+}
+
+.dropdown-divider {
+    border-color: var(--color-border);
+}
+
+/* Tabs */
+.nav-tabs {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.nav-tabs .nav-link {
+    color: var(--color-muted);
+    border: 1px solid transparent;
+    background-color: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--color-accent);
+    border-color: var(--color-border);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--color-accent);
+    background-color: var(--color-card-bg);
+    border-color: var(--color-border) var(--color-border) var(--color-card-bg);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+}
+
+/* Code blocks */
+pre {
+    background-color: var(--color-background) !important;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--color-card-bg);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-muted);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .stat-icon {
+        font-size: 1.5rem;
+    }
+    
+    .activity-feed {
+        max-height: 300px;
+    }
+}
+
+/* Loading states */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Custom checkbox styles */
+.form-check-input:checked {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+/* Custom radio button styles */
+.btn-check:checked + .btn-outline-secondary {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+}
+
+/* Visualization containers */
+#sourceChart,
+#confidenceChart {
+    max-height: 200px;
+}
+
+#timelineChart,
+#networkChart {
+    min-height: 300px;
+    background-color: rgba(13, 27, 42, 0.5);
+    border-radius: 0.375rem;
+    border: 1px solid var(--color-border);
+}
+
+/* Empty state styles */
+.text-center i[data-feather] {
+    opacity: 0.5;
+}
